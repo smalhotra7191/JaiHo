@@ -178,7 +178,7 @@ data_handler = CSVDataHandler()
 # Multi-language support
 translations = {
     'en': {
-        'app_title': 'Divine Bookings',
+        'app_title': 'Jai Ho!',
         'sign_in': 'Sign In',
         'customer': 'Customer',
         'pandit': 'Pandit',
@@ -270,10 +270,11 @@ translations = {
         'reviews': 'reviews',
         'boost_profile': 'Boost Your Profile',
         'complete_profile_tip': 'Complete your profile to attract more customers and grow your business.',
-        'complete_profile': 'Complete Profile'
+        'complete_profile': 'Complete Profile',
+        'developed_by': 'Developed by Smit Gupta and Sameer Malhotra'
     },
     'hi': {
-        'app_title': 'दिव्य बुकिंग',
+        'app_title': 'जय हो!',
         'sign_in': 'साइन इन',
         'customer': 'ग्राहक',
         'pandit': 'पंडित',
@@ -366,6 +367,7 @@ translations = {
         'boost_profile': 'अपनी प्रोफ़ाइल बढ़ाएं',
         'complete_profile_tip': 'अधिक ग्राहकों को आकर्षित करने और अपना व्यवसाय बढ़ाने के लिए अपनी प्रोफ़ाइल पूरी करें।',
         'complete_profile': 'प्रोफ़ाइल पूरी करें',
+        'developed_by': 'स्मित गुप्ता और समीर मल्होत्रा द्वारा विकसित',
         'welcome': 'स्वागत',
         'view_profile': 'प्रोफ़ाइल देखें',
         'export_report': 'रिपोर्ट निर्यात करें',
