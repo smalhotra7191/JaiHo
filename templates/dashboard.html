@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="relative p-4 space-y-6">
+    <!-- Header with Language Toggle and Action Buttons -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <div class="flex-1">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-tachometer-alt mr-3 text-orange-500"></i>Jai Ho!
+            </h1>
+            <p class="text-lg text-gray-600">{{ t('welcome') }}, {{ user.name }}</p>
+            <span class="inline-block mt-2 px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">
+                {% if user.type == 'pandit' %}{{ t('pandit') }}{% elif user.type == 'mandir' %}{{ t('mandir') }}{% else %}{{ user.type.title() }}{% endif %} {{ t('dashboard') }}
+            </span>
+        </div>
+        <!-- Language Toggle positioned at top-right -->
+        <div class="absolute top-4 right-4 md:relative md:top-auto md:right-auto">
+            <div class="flex items-center space-x-2 bg-white rounded-full px-3 py-2 shadow-sm border border-gray-200">
+                <a href="{{ url_for('set_language', lang='en') }}" class="px-3 py-1 rounded-full text-sm font-medium transition-colors {% if lang == 'en' %}bg-orange-500 text-white{% else %}text-gray-600 hover:bg-gray-100{% endif %}">EN</a>
+                <a href="{{ url_for('set_language', lang='hi') }}" class="px-3 py-1 rounded-full text-sm font-medium transition-colors {% if lang == 'hi' %}bg-orange-500 text-white{% else %}text-gray-600 hover:bg-gray-100{% endif %}">हि</a>
+            </div>
+        </div>
+        <div class="flex space-x-3 mt-4 md:mt-0">
+            <!-- Profile Dropdown -->
+            <div class="relative">
+                <button id="profileDropdown" class="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 transition-colors">
+                    <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Profile" class="w-10 h-10 rounded-full border-2 border-gray-300">
+                </button>
+                
+                <!-- Dropdown Menu -->
+                <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div class="py-1">
+                        <a href="{{ url_for('logout') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-sign-out-alt mr-2"></i>{{ t('logout') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- KPI Cards Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Total Bookings -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">{{ t('total_bookings') }}</p>
+                    <p class="text-4xl font-bold text-gray-900 mt-2">{{ total_bookings }}</p>
+                </div>
+                <div class="bg-blue-50 p-3 rounded-full">
+                    <i class="fas fa-calendar-check text-2xl text-blue-600"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-green-600 font-medium">
+                    <i class="fas fa-arrow-up mr-1"></i>+{{ (total_bookings * 0.12)|round|int }}%
+                </span>
+                <span class="text-gray-500 ml-2">from last month</span>
+            </div>
+        </div>
+
+        <!-- Total Revenue -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">{{ t('total_revenue') }}</p>
+                    <p class="text-4xl font-bold text-gray-900 mt-2">{{ t('rupees') }}{{ "{:,}".format(total_revenue) }}</p>
+                </div>
+                <div class="bg-green-50 p-3 rounded-full">
+                    <i class="fas fa-coins text-2xl text-green-600"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-green-600 font-medium">
+                    <i class="fas fa-arrow-up mr-1"></i>+10%
+                </span>
+                <span class="text-gray-500 ml-2">{{ t('from_last_month') }}</span>
+            </div>
+        </div>
+
+        <!-- Average Rating -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">{{ t('average_rating') }}</p>
+                    <div class="flex items-center mt-2">
+                        <p class="text-4xl font-bold text-gray-900 mr-3">{{ avg_rating }}</p>
+                        <div class="flex">
+                            {% for i in range(5) %}
+                                <i class="fas fa-star text-lg {% if i < avg_rating %}text-yellow-400{% else %}text-gray-300{% endif %} mx-0.5"></i>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-yellow-50 p-3 rounded-full">
+                    <i class="fas fa-star text-2xl text-yellow-600"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-gray-500">{{ t('based_on_reviews') }} {{ total_bookings }} {{ t('reviews') }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Professional Tip Card -->
+    {% if total_bookings < 5 %}
+    <div class="bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-xl p-6 mb-8">
+        <div class="flex items-start space-x-4">
+            <div class="bg-orange-500 p-2 rounded-lg">
+                <i class="fas fa-lightbulb text-white"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-orange-900 mb-2">{{ t('boost_profile') }}</h3>
+                <p class="text-orange-800 mb-3">{{ t('complete_profile_tip') }}</p>
+                <a href="{{ url_for('profile') }}" class="inline-flex items-center text-orange-600 font-medium hover:text-orange-700 transition-colors">
+                    <span>{{ t('complete_profile') }}</span>
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Bookings Management Section with Tabs -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        <!-- Tab Navigation -->
+        <div class="border-b border-gray-200">
+            <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                <button onclick="switchBookingTab('upcoming')" id="upcoming-tab" class="booking-tab border-b-2 border-orange-500 text-orange-600 py-4 px-1 text-sm font-medium">
+                    <i class="fas fa-clock mr-2"></i>{{ t('upcoming_bookings') }}
+                    {% if upcoming_bookings %}<span class="ml-2 bg-orange-100 text-orange-800 py-1 px-2 rounded-full text-xs">{{ upcoming_bookings|length }}</span>{% endif %}
+                </button>
+                <button onclick="switchBookingTab('completed')" id="completed-tab" class="booking-tab border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                    <i class="fas fa-check-circle mr-2"></i>{{ t('completed_bookings') }}
+                    {% if past_bookings %}<span class="ml-2 bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">{{ past_bookings|length }}</span>{% endif %}
+                </button>
+            </nav>
+        </div>
+
+        <!-- Upcoming Bookings Tab Content -->
+        <div id="upcoming-content" class="booking-content p-6">
+            {% if upcoming_bookings %}
+                <div class="space-y-4">
+                    {% for booking in upcoming_bookings %}
+                    <div class="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900">{{ t('booking') }} #{{ booking.id }}</h4>
+                                <span class="inline-block mt-1 px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+                                    {% if booking.status == 'confirmed' %}{{ t('confirmed') }}{% else %}{{ booking.status.title() }}{% endif %}
+                                </span>
+                            </div>
+                            <div class="text-right text-sm text-gray-500">
+                                <i class="fas fa-calendar mr-1"></i>{{ booking.date }}
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div class="flex items-center">
+                                <i class="fas fa-user w-4 text-blue-500 mr-2"></i>
+                                <span class="text-gray-600">{{ t('customer') }} ID: {{ booking.customer_id }}</span>
+                            </div>
+                            {% for pooja in poojas %}
+                                {% if pooja.id == booking.pooja_id %}
+                                <div class="flex items-center">
+                                    <i class="fas fa-pray w-4 text-purple-500 mr-2"></i>
+                                    <span class="text-gray-600">
+                                        {% if lang == 'hi' and pooja.name_hi %}{{ pooja.name_hi }}{% else %}{{ pooja.name }}{% endif %}
+                                    </span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-rupee-sign w-4 text-green-500 mr-2"></i>
+                                    <span class="text-gray-600">{{ t('rupees') }}{{ "{:,}".format(pooja.price) }}</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-clock w-4 text-orange-500 mr-2"></i>
+                                    <span class="text-gray-600">{{ pooja.duration }} {{ t('minutes') }}</span>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-16">
+                    <div class="bg-gray-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-calendar-times text-3xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ t('no_upcoming_bookings') }}</h3>
+                    <p class="text-gray-500 mb-6">{{ t('no_bookings_preview') }}</p>
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 max-w-md mx-auto">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">{{ t('sample_booking') }} #123</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">{{ t('confirmed') }}</span>
+                        </div>
+                        <div class="text-xs text-gray-500 space-y-1">
+                            <div>📅 {{ t('tomorrow') }}, 10:00 AM</div>
+                            <div>🙏 {% if lang == 'hi' %}गणेश पूजा{% else %}Ganesh Pooja{% endif %}</div>
+                            <div>💰 {{ t('rupees') }}5,000</div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Completed Bookings Tab Content -->
+        <div id="completed-content" class="booking-content p-6 hidden">
+            {% if past_bookings %}
+                <div class="space-y-4">
+                    {% for booking in past_bookings %}
+                    <div class="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900">{{ t('booking') }} #{{ booking.id }}</h4>
+                                <span class="inline-block mt-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                                    {% if booking.status == 'completed' %}{{ t('completed') }}{% else %}{{ booking.status.title() }}{% endif %}
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                {% if booking.rating %}
+                                <div class="flex items-center mb-1">
+                                    {% for i in range(5) %}
+                                        <i class="fas fa-star text-sm {% if i < booking.rating %}text-yellow-400{% else %}text-gray-300{% endif %} mr-1"></i>
+                                    {% endfor %}
+                                    <span class="text-sm text-gray-600 ml-2">{{ booking.rating }}/5</span>
+                                </div>
+                                {% endif %}
+                                <div class="text-sm text-gray-500">
+                                    <i class="fas fa-calendar mr-1"></i>{{ booking.date }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if booking.review %}
+                        <div class="bg-gray-50 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-4">
+                            <p class="text-sm text-gray-700 italic">"{{ booking.review }}"</p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                            {% for pooja in poojas %}
+                                {% if pooja.id == booking.pooja_id %}
+                                <div class="flex items-center">
+                                    <i class="fas fa-pray w-4 text-purple-500 mr-2"></i>
+                                    <span class="text-gray-600">{% if session.language == 'hi' and pooja.name_hi %}{{ pooja.name_hi }}{% else %}{{ pooja.name }}{% endif %}</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-rupee-sign w-4 text-green-500 mr-2"></i>
+                                    <span class="text-gray-600">₹{{ "{:,}".format(pooja.price) }}</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-user w-4 text-blue-500 mr-2"></i>
+                                    <span class="text-gray-600">{{ t('customer') }} #{{ booking.customer_id }}</span>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-16">
+                    <div class="bg-gray-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-history text-3xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No Completed Bookings</h3>
+                    <p class="text-gray-500 mb-6">You haven't completed any bookings yet — here's what will show up when you do</p>
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 max-w-md mx-auto">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Sample Booking #456</span>
+                            <div class="flex items-center">
+                                <div class="flex mr-2">
+                                    {% for i in range(5) %}
+                                        <i class="fas fa-star text-xs text-yellow-400 mr-0.5"></i>
+                                    {% endfor %}
+                                </div>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Completed</span>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-500 space-y-1">
+                            <div>📅 Last week</div>
+                            <div>🙏 Lakshmi Pooja</div>
+                            <div>💰 ₹7,000</div>
+                            <div class="bg-white p-2 rounded text-gray-600 italic">"Excellent service!"</div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function switchBookingTab(tabName) {
+    // Hide all content
+    document.querySelectorAll('.booking-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Remove active styles from all tabs
+    document.querySelectorAll('.booking-tab').forEach(tab => {
+        tab.classList.remove('border-orange-500', 'text-orange-600');
+        tab.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Show selected content
+    document.getElementById(tabName + '-content').classList.remove('hidden');
+    
+    // Add active styles to selected tab
+    const activeTab = document.getElementById(tabName + '-tab');
+    activeTab.classList.remove('border-transparent', 'text-gray-500');
+    activeTab.classList.add('border-orange-500', 'text-orange-600');
+}
+
+// Profile dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const profileDropdown = document.getElementById('profileDropdown');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    
+    profileDropdown.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('hidden');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function() {
+        dropdownMenu.classList.add('hidden');
+    });
+    
+    // Prevent dropdown from closing when clicking inside
+    dropdownMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+});
+</script>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white border rounded-full shadow-lg z-50">
+    <div class="flex justify-center px-4 py-2 space-x-2">
+        <a href="{{ url_for('dashboard') }}" class="flex flex-col items-center text-orange-500 py-2 px-3">
+            <i class="fa fa-home text-xl mb-1"></i>
+            <span class="text-xs font-semibold">{{ t('home') }}</span>
+        </a>
+        <a href="{{ url_for('profile') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-user text-xl mb-1"></i>
+            <span class="text-xs">{{ t('profile') }}</span>
+        </a>
+    </div>
+</nav>
+{% endblock %}

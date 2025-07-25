@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}{{ t('profile') }}{% endblock %}
+{% block content %}
+<div class="p-4">
+    <h1 class="text-xl font-bold mb-4">{{ t('profile') }}</h1>
+    
+    <div class="card mb-4">
+        <div class="text-center">
+            <img src="{{ user.profile_image_url }}" alt="Profile" class="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-orange-500">
+            <h2 class="text-xl font-bold">{{ user.name }}</h2>
+            <p class="text-gray-600"><i class="fas fa-phone mr-2"></i>{{ user.phone }}</p>
+            <p class="text-gray-600 text-sm">
+                {% if user.type == 'customer' %}{{ t('customer') }}
+                {% elif user.type == 'pandit' %}{{ t('pandit') }}
+                {% elif user.type == 'mandir' %}{{ t('mandir') }}
+                {% else %}{{ user.type|title }}{% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <div class="space-y-4">
+        <div class="card">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fa fa-user mr-3 text-orange-500"></i>
+                    <span>{{ t('edit_profile') }}</span>
+                </div>
+                <i class="fa fa-chevron-right text-gray-400"></i>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fa fa-bell mr-3 text-orange-500"></i>
+                    <span>{{ t('notifications') }}</span>
+                </div>
+                <i class="fa fa-chevron-right text-gray-400"></i>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fa fa-globe mr-3 text-orange-500"></i>
+                    <span>{{ t('language') }}</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-gray-600 mr-2">{{ 'English' if lang == 'en' else 'हिन्दी' }}</span>
+                    <i class="fa fa-chevron-right text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fa fa-question-circle mr-3 text-orange-500"></i>
+                    <span>{{ t('help_support') }}</span>
+                </div>
+                <i class="fa fa-chevron-right text-gray-400"></i>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fa fa-info-circle mr-3 text-orange-500"></i>
+                    <span>{{ t('about') }}</span>
+                </div>
+                <i class="fa fa-chevron-right text-gray-400"></i>
+            </div>
+        </div>
+        
+        <div class="card">
+            <a href="{{ url_for('logout') }}" class="flex items-center text-red-600">
+                <i class="fa fa-sign-out-alt mr-3"></i>
+                <span>{{ t('logout') }}</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white border rounded-full shadow-lg z-50">
+    <div class="flex justify-center px-4 py-2 space-x-2">
+        <a href="{{ url_for('dashboard') if session.user_type in ['pandit', 'mandir'] else url_for('browse_poojas') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-home text-xl mb-1"></i>
+            <span class="text-xs">{{ t('home') }}</span>
+        </a>
+        {% if session.user_type == 'customer' %}
+        <a href="{{ url_for('search') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-search text-xl mb-1"></i>
+            <span class="text-xs">{{ t('search') }}</span>
+        </a>
+        <a href="{{ url_for('bookings') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-calendar text-xl mb-1"></i>
+            <span class="text-xs">{{ t('bookings') }}</span>
+        </a>
+        <a href="{{ url_for('chat') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-comments text-xl mb-1"></i>
+            <span class="text-xs">{{ t('chat') }}</span>
+        </a>
+        {% endif %}
+        <a href="{{ url_for('profile') }}" class="flex flex-col items-center text-orange-500 py-2 px-3">
+            <i class="fa fa-user text-xl mb-1"></i>
+            <span class="text-xs font-semibold">{{ t('profile') }}</span>
+        </a>
+    </div>
+</nav>
+{% endblock %}

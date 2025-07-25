@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ t('app_title') }}{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_sm.css') }}">
+    <style>
+        .mobile-app {
+            /* max-width: 428px; */
+            width: 100%;
+            padding: 45px 45px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fff2df 0%, #ebd6ff 100%);
+            color: #2d3748; /* Dark text for better contrast */
+        }
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin: 10px;
+            padding: 20px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #ff7b54 0%, #ff6347 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,99,71,0.3);
+        }
+        .tab-active {
+            background: #ff7b54;
+            color: white;
+        }
+        .pooja-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 8px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 4px solid #ff7b54;
+        }
+        
+        /* Line clamp utility for text truncation */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* Enhanced card shadows and rounded corners */
+        .shadow-lg {
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Custom gradient backgrounds */
+        .gradient-orange-purple {
+            background: linear-gradient(135deg, #ff9500 0%, #ff6b47 50%, #d63384 100%);
+        }
+        
+        .gradient-blue-purple {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-green-blue {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        /* Bottom navigation improvements */
+        .bottom-nav {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+        
+        /* Smooth transitions */
+        * {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        /* Mobile responsive adjustments */
+        @media (max-width: 428px) {
+            .mobile-app {
+                padding: 0;
+            }
+        }
+        .dashboard-stat {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .filter-section {
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        /* Enhanced text visibility for light background */
+        h1, h2, h3, h4, h5, h6 {
+            color: #1a202c !important;
+        }
+        
+        .text-white {
+            color: #1a202c !important;
+        }
+        
+        .text-gray-600 {
+            color: #4a5568 !important;
+        }
+        
+        .text-gray-500 {
+            color: #4a5568 !important;
+        }
+        
+        .text-gray-400 {
+            color: #4a5568 !important;
+        }
+        
+        .text-gray-300 {
+            color: #4a5568 !important;
+        }
+        
+        p, span, div {
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-app">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script>
+        // Mobile app JavaScript
+        function showFlashMessages() {
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        alert("{{ message }}");
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            showFlashMessages();
+        });
+        
+        function switchTab(activeTab) {
+            const tabs = document.querySelectorAll('.user-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('tab-active');
+            });
+            document.getElementById(activeTab + '-tab').classList.add('tab-active');
+            document.getElementById('user-type').value = activeTab;
+        }
+        
+        function filterPoojas() {
+            // Client-side filtering logic can be implemented here
+            console.log('Filtering poojas...');
+        }
+    </script>
+</body>
+</html>

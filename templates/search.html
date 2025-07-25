@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ t('search') }}{% endblock %}
+{% block content %}
+<div class="p-4">
+    <h1 class="text-xl font-bold mb-4">{{ t('search_poojas') }}</h1>
+    
+    <form method="GET" class="mb-4">
+        <input type="text" name="q" value="{{ query }}" 
+               class="w-full rounded-lg border px-4 py-2" 
+               placeholder="{{ t('search_for_poojas') }}">
+        <button type="submit" class="btn-primary mt-2 w-full">{{ t('search') }}</button>
+    </form>
+    
+    {% if query %}
+        <p class="text-gray-600 mb-4">{{ t('search_results') }} "{{ query }}"</p>
+    {% endif %}
+    
+    {% for pooja in poojas %}
+    <div class="pooja-card mb-4">
+        <h3 class="font-bold">
+            {% if lang == 'hi' and pooja.name_hi %}
+                {{ pooja.name_hi }}
+            {% else %}
+                {{ pooja.name }}
+            {% endif %}
+        </h3>
+        <p class="text-gray-600">
+            {% if lang == 'hi' and pooja.description_hi %}
+                {{ pooja.description_hi }}
+            {% else %}
+                {{ pooja.description }}
+            {% endif %}
+        </p>
+        <p class="text-orange-500 font-bold">{{ t('rupees') }}{{ pooja.price }}</p>
+        <a href="{{ url_for('book_pooja', pooja_id=pooja.id) }}" class="btn-primary inline-block mt-2">{{ t('book_now') }}</a>
+    </div>
+    {% endfor %}
+    
+    {% if not poojas %}
+        <p class="text-gray-500 text-center">{{ t('no_poojas_found') }}</p>
+    {% endif %}
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white border rounded-full shadow-lg z-50">
+    <div class="flex justify-center px-4 py-2 space-x-2">
+        <a href="{{ url_for('browse_poojas') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-home text-xl mb-1"></i>
+            <span class="text-xs">{{ t('home') }}</span>
+        </a>
+        <a href="{{ url_for('search') }}" class="flex flex-col items-center text-orange-500 py-2 px-3">
+            <i class="fa fa-search text-xl mb-1"></i>
+            <span class="text-xs font-semibold">{{ t('search') }}</span>
+        </a>
+        <a href="{{ url_for('bookings') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-calendar text-xl mb-1"></i>
+            <span class="text-xs">{{ t('bookings') }}</span>
+        </a>
+        <a href="{{ url_for('chat') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-comments text-xl mb-1"></i>
+            <span class="text-xs">{{ t('chat') }}</span>
+        </a>
+        <a href="{{ url_for('profile') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-user text-xl mb-1"></i>
+            <span class="text-xs">{{ t('profile') }}</span>
+        </a>
+    </div>
+</nav>
+{% endblock %}

@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}{{ t('app_title') }}{% endblock %}
+{% block content %}
+<!-- Header with app name, language toggle, and profile -->
+<div class="flex items-center justify-between py-4 px-4">
+    <h1 class="text-2xl font-bold text-white">Jai Ho!</h1>
+    <div class="flex items-center space-x-2">
+        <a href="{{ url_for('set_language', lang='en') }}" class="text-white {% if lang == 'en' %}font-bold text-orange-300{% endif %}">EN</a>
+        <span class="text-white">|</span>
+        <a href="{{ url_for('set_language', lang='hi') }}" class="text-white {% if lang == 'hi' %}font-bold text-orange-300{% endif %}">हि</a>
+        
+        <!-- Profile Dropdown -->
+        <div class="relative ml-2">
+            <button id="profileDropdown" class="flex items-center p-1 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors">
+                <img src="{{ user.profile_image_url or '/static/images/default_profile.jpg' }}" alt="Profile" class="w-8 h-8 rounded-full border-2 border-white">
+            </button>
+            
+            <!-- Dropdown Menu -->
+            <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                <div class="py-1">
+                    <a href="{{ url_for('logout') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>{{ t('logout') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="px-4 mb-4">
+    <form method="GET" action="{{ url_for('browse_poojas') }}">
+        <input type="text" name="q" class="w-full rounded-lg border-0 px-4 py-3 shadow-md" placeholder="{{ t('search_for_poojas') }}" value="{{ search_query or '' }}">
+    </form>
+</div>
+
+<!-- Filter Tabs -->
+<div class="px-4 mb-4">
+    <div class="flex space-x-2 overflow-x-auto">
+        <button class="bg-orange-500 text-white px-4 py-2 rounded-full font-semibold whitespace-nowrap">All Poojas</button>
+        <button class="bg-white text-gray-700 px-4 py-2 rounded-full font-semibold whitespace-nowrap shadow-md">Near Me</button>
+        <button class="bg-white text-gray-700 px-4 py-2 rounded-full font-semibold whitespace-nowrap shadow-md">Festivals</button>
+        <button class="bg-white text-gray-700 px-4 py-2 rounded-full font-semibold whitespace-nowrap shadow-md">House Visits</button>
+    </div>
+</div>
+
+<!-- Search Results Header -->
+{% if search_query %}
+<div class="px-4 mb-4">
+    <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold text-white">
+            {{ t('search_results') }} "{{ search_query }}"
+            {% if poojas %}
+                <span class="text-sm text-gray-300">({{ poojas|length }} {{ t('found') }})</span>
+            {% endif %}
+        </h2>
+        <a href="{{ url_for('browse_poojas') }}" class="text-orange-400 text-sm">
+            <i class="fas fa-times mr-1"></i>{{ t('clear_search') }}
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Popular Poojas Section -->
+<div class="px-4">
+    <h2 class="text-lg font-bold text-white mb-4">
+        {% if search_query %}
+            {{ t('search_results') }}
+        {% else %}
+            {{ t('popular_poojas') }}
+        {% endif %}
+    </h2>
+    
+    {% for pooja in poojas %}
+    <div class="bg-white rounded-xl shadow-lg mb-4 overflow-hidden">
+        <!-- Pooja Image with gradient background -->
+        <div class="h-40 {% if loop.index % 3 == 1 %}bg-gradient-to-br from-orange-400 via-red-400 to-purple-500{% elif loop.index % 3 == 2 %}bg-gradient-to-br from-blue-400 via-purple-400 to-pink-500{% else %}bg-gradient-to-br from-green-400 via-blue-400 to-purple-500{% endif %} relative">
+            <div class="absolute top-3 left-3">
+                <span class="bg-orange-500 text-white px-3 py-1 rounded-full font-bold text-sm">₹{{ pooja.price_min or (pooja.price - 1000) }} - ₹{{ pooja.price_max or (pooja.price + 1000) }}</span>
+            </div>
+            <div class="absolute top-3 right-3">
+                <span class="bg-black bg-opacity-50 text-white px-2 py-1 rounded-full font-bold text-sm flex items-center">
+                    <i class="fa fa-star text-yellow-400 mr-1"></i>{{ pooja.rating or 4.8 }}
+                </span>
+            </div>
+        </div>
+        
+        <!-- Pooja Details -->
+        <div class="p-4">
+            <h3 class="font-bold text-lg mb-1 text-gray-800">
+                {% if lang == 'hi' and pooja.name_hi %}
+                    {{ pooja.name_hi }}
+                {% else %}
+                    {{ pooja.name }}
+                {% endif %}
+            </h3>
+            <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                {% if lang == 'hi' and pooja.description_hi %}
+                    {{ pooja.description_hi }}
+                {% else %}
+                    {{ pooja.description }}
+                {% endif %}
+            </p>
+            
+            <div class="flex items-center text-xs text-gray-500 mb-3 space-x-4">
+                <span class="flex items-center">
+                    <i class="fa fa-clock mr-1"></i>{{ pooja.duration }} {{ t('minutes') }}
+                </span>
+                <span class="flex items-center">
+                    <i class="fa fa-user mr-1"></i>{{ pooja.pandits or pandits|length }} {{ t('pandit') }}
+                </span>
+            </div>
+            
+            <div class="flex items-center justify-between">
+                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">{{ pooja.category or t('daily_worship') }}</span>
+                <a href="{{ url_for('book_pooja', pooja_id=pooja.id) }}" class="text-orange-500 font-bold text-sm hover:text-orange-600">{{ t('view_details') }}</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    
+    {% if not poojas %}
+        <div class="text-center py-8">
+            {% if search_query %}
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500 mb-2">No poojas found for "{{ search_query }}"</p>
+                    <p class="text-sm text-gray-400 mb-4">Try searching with different keywords or browse all poojas.</p>
+                    <a href="{{ url_for('browse_poojas') }}" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
+                        <i class="fas fa-arrow-left mr-2"></i>Browse All Poojas
+                    </a>
+                </div>
+            {% else %}
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <i class="fas fa-pray text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">No poojas available at the moment.</p>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Bottom padding for fixed navigation -->
+<div class="pb-20"></div>
+
+<!-- Bottom Navigation Tabs - Centered -->
+<nav class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white border rounded-full shadow-lg z-50">
+    <div class="flex justify-center px-4 py-2 space-x-2">
+        <a href="{{ url_for('browse_poojas') }}" class="flex flex-col items-center text-orange-500 py-2 px-3">
+            <i class="fa fa-home text-xl mb-1"></i>
+            <span class="text-xs font-semibold">{{ t('home') }}</span>
+        </a>
+        <a href="{{ url_for('search') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-search text-xl mb-1"></i>
+            <span class="text-xs">{{ t('search') }}</span>
+        </a>
+        <a href="{{ url_for('bookings') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-calendar text-xl mb-1"></i>
+            <span class="text-xs">{{ t('bookings') }}</span>
+        </a>
+        <a href="{{ url_for('chat') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-comments text-xl mb-1"></i>
+            <span class="text-xs">{{ t('chat') }}</span>
+        </a>
+        <a href="{{ url_for('profile') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-user text-xl mb-1"></i>
+            <span class="text-xs">{{ t('profile') }}</span>
+        </a>
+    </div>
+</nav>
+
+<script>
+// Profile dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const profileDropdown = document.getElementById('profileDropdown');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    
+    profileDropdown.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('hidden');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function() {
+        dropdownMenu.classList.add('hidden');
+    });
+    
+    // Prevent dropdown from closing when clicking inside
+    dropdownMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+});
+</script>
+{% endblock %}

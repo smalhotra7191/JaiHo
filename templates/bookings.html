@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}{{ t('my_bookings') }}{% endblock %}
+{% block content %}
+<div class="p-4">
+    <h1 class="text-xl font-bold mb-4">{{ t('my_bookings') }}</h1>
+    
+    {% for booking in bookings %}
+    <div class="card mb-4">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="font-bold">{{ booking.pooja_name }}</h3>
+                <p class="text-gray-600">{{ t('pandit') }}: {{ booking.pandit_name }}</p>
+                <p class="text-gray-600">{{ t('select_date') }}: {{ booking.date }}</p>
+                <p class="text-orange-500 font-bold">{{ t('rupees') }}{{ booking.pooja_price }}</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-sm
+                {% if booking.status == 'confirmed' %}bg-green-100 text-green-800
+                {% elif booking.status == 'completed' %}bg-blue-100 text-blue-800
+                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                {% if booking.status == 'confirmed' %}{{ t('confirmed') }}
+                {% elif booking.status == 'completed' %}{{ t('completed') }}
+                {% elif booking.status == 'cancelled' %}{{ t('cancelled') }}
+                {% else %}{{ booking.status|title }}{% endif %}
+            </span>
+        </div>
+        
+        {% if booking.status == 'completed' and booking.rating %}
+        <div class="mt-2">
+            <div class="flex items-center">
+                <span class="text-yellow-500">
+                    {% for i in range(booking.rating) %}★{% endfor %}
+                </span>
+                <span class="ml-2 text-gray-600">{{ booking.rating }}/5</span>
+            </div>
+            {% if booking.review %}
+                <p class="text-gray-600 text-sm mt-1">"{{ booking.review }}"</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    
+    {% if not bookings %}
+        <div class="text-center py-8">
+            <p class="text-gray-500">{{ t('no_bookings') }}.</p>
+            <a href="{{ url_for('browse_poojas') }}" class="btn-primary inline-block mt-4">{{ t('browse_poojas') }}</a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white border rounded-full shadow-lg z-50">
+    <div class="flex justify-center px-4 py-2 space-x-2">
+        <a href="{{ url_for('browse_poojas') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-home text-xl mb-1"></i>
+            <span class="text-xs">{{ t('home') }}</span>
+        </a>
+        <a href="{{ url_for('search') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-search text-xl mb-1"></i>
+            <span class="text-xs">{{ t('search') }}</span>
+        </a>
+        <a href="{{ url_for('bookings') }}" class="flex flex-col items-center text-orange-500 py-2 px-3">
+            <i class="fa fa-calendar text-xl mb-1"></i>
+            <span class="text-xs font-semibold">{{ t('bookings') }}</span>
+        </a>
+        <a href="{{ url_for('chat') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-comments text-xl mb-1"></i>
+            <span class="text-xs">{{ t('chat') }}</span>
+        </a>
+        <a href="{{ url_for('profile') }}" class="flex flex-col items-center text-gray-500 py-2 px-3 hover:text-orange-500">
+            <i class="fa fa-user text-xl mb-1"></i>
+            <span class="text-xs">{{ t('profile') }}</span>
+        </a>
+    </div>
+</nav>
+{% endblock %}

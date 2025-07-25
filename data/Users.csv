@@ -1,0 +1,4 @@
+id,email,password,type,name,phone,experience,specialization,address,capacity
+1,customer@test.com,hashed_pass,customer,Ram Kumar,9876543210,,,,
+2,pandit@test.com,hashed_pass,pandit,Pandit Sharma,9876543211,10,Wedding Ceremonies,,
+3,mandir@test.com,hashed_pass,mandir,Shri Ram Mandir,9876543212,,,Delhi,100
